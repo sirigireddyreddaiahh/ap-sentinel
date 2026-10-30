@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AP Sentinel: Invoice Check (starter)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>AP Sentinel</h1>
+    <span class="sub">Invoice fraud and duplicate checks. Starter build with sample data.</span>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="upload">1. Upload and check</button>
+    <button class="tab" data-tab="s4">2. Fetch from Bluspring (S/4HANA)</button>
+  </nav>
+
+  <main>
+    <!-- SCREEN 1: upload a PDF, review the fields, then Check -->
+    <section id="tab-upload" class="panel active">
+      <div class="card">
+        <h2>Upload an invoice PDF</h2>
+        <p class="hint">Works on PDFs with a text layer. Scanned PDFs need OCR, which is a later phase. Always review the fields before you check.</p>
+        <div class="row">
+          <input type="file" id="pdfFile" accept="application/pdf">
+          <button id="btnExtract" class="primary">Upload and read</button>
+        </div>
+        <div id="extractMsg" class="msg"></div>
+      </div>
+
+      <div class="card">
+        <h2>Invoice fields</h2>
+        <form id="invForm" class="grid">
+          <label>Supplier name <input name="supplierName"></label>
+          <label>Supplier GSTIN <input name="supplierGstin" maxlength="15"></label>
+          <label>Buyer GSTIN (Bluspring entity) <input name="buyerGstin" maxlength="15"></label>
+          <label>Invoice number <input name="invoiceNo"></label>
+          <label>Invoice date <input name="invoiceDate" type="date"></label>
+          <label>PO number <input name="poNumber"></label>
+          <label class="wide">Description <input name="description"></label>
+          <label>Category
+            <select name="category"><option value="services">Services</option><option value="goods">Goods</option></select>
+          </label>
+          <label>Receipt (GR for goods, SES for services)
+            <select name="receipt"><option value="unknown">Not known</option><option value="yes">Received</option><option value="no">Not received</option></select>
+          </label>
+          <label>HSN / SAC <input name="hsn"></label>
+          <label>Taxable value (INR) <input name="taxable" type="number" step="0.01"></label>
+          <label>CGST (INR) <input name="cgst" type="number" step="0.01"></label>
+          <label>SGST (INR) <input name="sgst" type="number" step="0.01"></label>
+          <label>IGST (INR) <input name="igst" type="number" step="0.01"></label>
+          <label>Total (INR) <input name="total" type="number" step="0.01"></label>
+          <label>IFSC <input name="ifsc"></label>
+          <label>Account number <input name="accountNo"></label>
+        </form>
+        <div class="row">
+          <button id="btnCheck" class="primary">Check</button>
+          <button id="btnPostUpload" disabled>Post to ledger</button>
+        </div>
+      </div>
+      <div id="resultUpload" class="card hidden"></div>
+    </section>
+
+    <!-- SCREEN 2: fetch invoices from the S/4HANA extract, then check them -->
+    <section id="tab-s4" class="panel">
+      <div class="card">
+        <h2>Invoices from Bluspring S/4HANA</h2>
+        <p class="hint">This starter uses a mock extract. The live S/4HANA connection is a later step, once API access is agreed.</p>
+        <div class="row">
+          <button id="btnFetch" class="primary">Fetch invoices</button>
+          <button id="btnCheckAll" disabled>Check all</button>
+        </div>
+        <div id="s4Msg" class="msg"></div>
+        <div class="tablewrap"><table id="s4Table"><thead>
+          <tr><th>ID</th><th>Supplier</th><th>Invoice no</th><th>Date</th><th>Total (INR)</th><th>PO</th><th>Status</th><th>Reasons</th></tr>
+        </thead><tbody></tbody></table></div>
+      </div>
+      <div id="resultS4" class="card hidden"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

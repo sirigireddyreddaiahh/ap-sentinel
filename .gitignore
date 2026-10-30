@@ -1,0 +1,12 @@
+node_modules/
+db.sqlite
+db.sqlite-*
+config/irp-public-key.pem
+*.mtar
+mta_archives/
+gen/
+.env
+default-env.json
+.DS_Store
+.deploy/
+approuter/node_modules/

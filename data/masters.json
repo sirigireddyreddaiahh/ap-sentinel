@@ -1,0 +1,148 @@
+{
+  "_note": "SAMPLE DATA for testing only. Replace with Bluspring master files before any real use.",
+  "entities": [
+    {
+      "code": "BSP01",
+      "name": "Bluspring Entity 01 (name to confirm)",
+      "gstins": [
+        "37AABCB1001K1Z7"
+      ]
+    },
+    {
+      "code": "BSP02",
+      "name": "Bluspring Entity 02 (name to confirm)",
+      "gstins": [
+        "36AABCB1002K1Z8"
+      ]
+    },
+    {
+      "code": "BSP03",
+      "name": "Bluspring Entity 03 (name to confirm)",
+      "gstins": [
+        "29AABCB1003K1Z2"
+      ]
+    },
+    {
+      "code": "BSP04",
+      "name": "Bluspring Entity 04 (name to confirm)",
+      "gstins": [
+        "33AABCB1004K1ZC"
+      ]
+    },
+    {
+      "code": "BSP05",
+      "name": "Bluspring Entity 05 (name to confirm)",
+      "gstins": [
+        "27AABCB1005K1Z4"
+      ]
+    }
+  ],
+  "vendors": [
+    {
+      "id": "V1001",
+      "name": "Sri Sai Facility Services",
+      "gstin": "37AAFCS2201L1ZG",
+      "ifsc": "SBIN0001001",
+      "account": "123456789001"
+    },
+    {
+      "id": "V1002",
+      "name": "Green Valley Food Supplies",
+      "gstin": "27AABCG4410M1ZO",
+      "ifsc": "HDFC0001002",
+      "account": "50100012345678"
+    },
+    {
+      "id": "V1003",
+      "name": "Tech Maintenance Co",
+      "gstin": "29AAHCT7712N1ZO",
+      "ifsc": "ICIC0001003",
+      "account": "60200011223344"
+    },
+    {
+      "id": "V1004",
+      "name": "Quick Print Traders",
+      "gstin": "33AAGCQ9020P1Z2",
+      "ifsc": "UTIB0001004",
+      "account": "91230045678"
+    }
+  ],
+  "customers": [
+    {
+      "id": "C1",
+      "name": "Retail Customer A",
+      "account": "91234500001"
+    }
+  ],
+  "employees": [
+    {
+      "id": "E1",
+      "name": "Employee X (sample)",
+      "account": "77712340009"
+    }
+  ],
+  "groupAccounts": [
+    "50000011112222"
+  ],
+  "purchaseOrders": [
+    {
+      "po": "4500001001",
+      "vendorGstin": "37AAFCS2201L1ZG",
+      "date": "2026-10-01",
+      "recurring": false,
+      "description": "Facility services October 2026"
+    },
+    {
+      "po": "4500002002",
+      "vendorGstin": "29AAHCT7712N1ZO",
+      "date": "2026-09-01",
+      "recurring": true,
+      "description": "Monthly AMC HVAC maintenance contract"
+    },
+    {
+      "po": "4500003003",
+      "vendorGstin": "27AABCG4410M1ZO",
+      "date": "2026-10-10",
+      "recurring": false,
+      "description": "Bulk food supplies"
+    },
+    {
+      "po": "4500004004",
+      "vendorGstin": "33AAGCQ9020P1Z2",
+      "date": "2026-10-18",
+      "recurring": false,
+      "description": "Printing and signage services"
+    }
+  ],
+  "gstinStatus": {
+    "37AAFCS2201L1ZG": "Active",
+    "27AABCG4410M1ZO": "Active",
+    "29AAHCT7712N1ZO": "Active",
+    "33AAGCQ9020P1Z2": "Active"
+  },
+  "blacklistGstins": [],
+  "rates": {
+    "9983": 18,
+    "9985": 18
+  },
+  "cessApplicable": [],
+  "doa": {
+    "levels": [
+      100000,
+      500000
+    ]
+  },
+  "holidays": [
+    "2026-10-02"
+  ],
+  "pdfDesignTools": [
+    "Canva",
+    "Photoshop",
+    "Illustrator",
+    "GIMP",
+    "Figma"
+  ],
+  "policy": {
+    "poRequired": true
+  }
+}

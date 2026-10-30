@@ -1,0 +1,59 @@
+{
+  "name": "ap-sentinel",
+  "version": "0.1.0",
+  "description": "AP Sentinel: invoice fraud and duplicate checks for SAP BTP (starter)",
+  "main": "index.js",
+  "scripts": {
+    "start": "cds-serve",
+    "watch": "cds watch",
+    "test": "node --test test/rules.test.js",
+    "build": "cds build --production"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@cap-js/hana": "^3.1.2",
+    "@cap-js/sqlite": "^3.1.2",
+    "@sap/cds": "^10.2.2",
+    "pdfjs-dist": "^6.4.299",
+    "@sap/xssec": "^4"
+  },
+  "private": true,
+  "cds": {
+    "requires": {
+      "db": {
+        "[development]": {
+          "kind": "sqlite"
+        },
+        "[production]": {
+          "kind": "hana"
+        }
+      },
+      "[production]": {
+        "auth": "xsuaa"
+      },
+      "auth": {
+        "[development]": {
+          "kind": "mocked",
+          "users": {
+            "reviewer": {
+              "password": "reviewer"
+            }
+          }
+        }
+      }
+    },
+    "server": {
+      "body_parser": {
+        "limit": "10mb"
+      }
+    }
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@sap/cds-dk": "^10.2.0"
+  }
+}
