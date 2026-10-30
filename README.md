@@ -143,3 +143,4 @@ These are decisions I made where the spec left the answer open:
 - The service requires a signed-in user (`@requires: 'authenticated-user'`). In production, sign-in uses XSUAA through the approuter.
 - The local login (`reviewer` / `reviewer`) applies only to `cds watch` and `cds serve` on your computer. It is not used in production.
 - The IRP key and any HANA credentials stay out of GitHub. `.gitignore` excludes them.
+# ap-sentinel
