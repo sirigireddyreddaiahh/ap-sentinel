@@ -1,30 +1,26 @@
 using { ap } from '../db/schema';
 
-// Any signed-in user can call the service. Role-based restrictions come later (for example Reviewer, AP Clerk).
+// Roles. APClerk prepares and posts invoices. APController checks and decides holds. Auditor reads only.
 @path: '/fraud'
-@requires: 'authenticated-user'
+@requires: ['APClerk', 'APController', 'Auditor']
 service FraudService {
-  @readonly entity Checks   as projection on ap.Checks;
-  @readonly entity Alerts   as projection on ap.Alerts;
-  @readonly entity Posted   as projection on ap.Posted;
+  @readonly entity Checks as projection on ap.Checks;
+  @readonly entity CheckResults as projection on ap.CheckResults;
+  @readonly entity Alerts as projection on ap.Alerts actions {
+    @requires: 'APController'
+    action decide(decision : String, comment : String) returns LargeString;
+  };
+  @readonly entity Posted as projection on ap.Posted;
   @readonly entity AuditLog as projection on ap.AuditLog;
 
-  // Screen 2: invoices from the S/4HANA extract (mock data in this starter)
-  function fetchS4Invoices() returns LargeString;
+  function whoami() returns LargeString;
 
-  // Screen 1: read a PDF and return the fields it can find (text PDFs only)
-  action extractPdf(fileName : String, pdfBase64 : LargeString) returns LargeString;
-
-  // Both screens: run the rules
-  action checkInvoice(invoice : LargeString) returns LargeString;
-  action checkBatch(invoices : LargeString) returns LargeString;
-
-  // Post to the ledger if not REJECT; HOLD posts with a payment block
-  action postInvoice(invoice : LargeString) returns LargeString;
-
-  // Reviewer decision on one alert. Comment is mandatory. REJECT cannot be cleared.
-  action decideAlert(alertId : String, decision : String, comment : String) returns LargeString;
-
-  // Recompute the audit hash chain and report whether it is intact
-  function verifyAuditChain() returns LargeString;
+  @requires: ['APClerk', 'APController'] function fetchS4Invoices() returns LargeString;
+  @requires: ['APClerk', 'APController'] action importS4Extract(fileName : String, content : LargeString) returns LargeString;
+  @requires: ['APClerk', 'APController'] action extractPdf(fileName : String, pdfBase64 : LargeString) returns LargeString;
+  @requires: ['APClerk', 'APController'] action checkInvoice(invoice : LargeString) returns LargeString;
+  @requires: ['APClerk', 'APController'] action checkBatch(invoices : LargeString) returns LargeString;
+  @requires: 'APClerk' action postInvoice(invoice : LargeString) returns LargeString;
+  @requires: 'APController' action decideAlert(alertId : String, decision : String, comment : String) returns LargeString;
+  @requires: ['APController', 'Auditor'] function verifyAuditChain() returns LargeString;
 }

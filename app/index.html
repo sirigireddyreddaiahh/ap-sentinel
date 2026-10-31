@@ -3,26 +3,28 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AP Sentinel: Invoice Check (starter)</title>
+  <title>AP Sentinel: Invoice Check</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
     <h1>AP Sentinel</h1>
-    <span class="sub">Invoice fraud and duplicate checks. Starter build with sample data.</span>
+    <span class="sub">Invoice fraud and duplicate checks</span>
+    <span id="who" class="sub"></span>
+    <a class="sub link" href="alerts/index.html">Review queue (Fiori)</a>
   </header>
 
   <nav class="tabs">
     <button class="tab active" data-tab="upload">1. Upload and check</button>
-    <button class="tab" data-tab="s4">2. Fetch from Bluspring (S/4HANA)</button>
+    <button class="tab" data-tab="s4">2. S/4HANA extract</button>
   </nav>
 
   <main>
-    <!-- SCREEN 1: upload a PDF, review the fields, then Check -->
+    <!-- SCREEN 1: upload a PDF (text, QR or scanned), review the fields, then Check -->
     <section id="tab-upload" class="panel active">
       <div class="card">
         <h2>Upload an invoice PDF</h2>
-        <p class="hint">Works on PDFs with a text layer. Scanned PDFs need OCR, which is a later phase. Always review the fields before you check.</p>
+        <p class="hint">Reads the text layer, the QR code of an e-invoice, and scanned pages (OCR). Always review the fields before you check.</p>
         <div class="row">
           <input type="file" id="pdfFile" accept="application/pdf">
           <button id="btnExtract" class="primary">Upload and read</button>
@@ -33,6 +35,7 @@
       <div class="card">
         <h2>Invoice fields</h2>
         <form id="invForm" class="grid">
+          <input type="hidden" name="qrJwt">
           <label>Supplier name <input name="supplierName"></label>
           <label>Supplier GSTIN <input name="supplierGstin" maxlength="15"></label>
           <label>Buyer GSTIN (Bluspring entity) <input name="buyerGstin" maxlength="15"></label>
@@ -63,13 +66,15 @@
       <div id="resultUpload" class="card hidden"></div>
     </section>
 
-    <!-- SCREEN 2: fetch invoices from the S/4HANA extract, then check them -->
+    <!-- SCREEN 2: import the S/4HANA export (or use the sample), then check all -->
     <section id="tab-s4" class="panel">
       <div class="card">
-        <h2>Invoices from Bluspring S/4HANA</h2>
-        <p class="hint">This starter uses a mock extract. The live S/4HANA connection is a later step, once API access is agreed.</p>
+        <h2>S/4HANA extract</h2>
+        <p class="hint">Import the invoice export from Bluspring's S/4HANA as CSV (template: data/s4-import-template.csv). The sample extract is for demos.</p>
         <div class="row">
-          <button id="btnFetch" class="primary">Fetch invoices</button>
+          <input type="file" id="s4File" accept=".csv,.json,text/csv,application/json">
+          <button id="btnImport" class="primary">Import extract file</button>
+          <button id="btnFetch">Use sample extract</button>
           <button id="btnCheckAll" disabled>Check all</button>
         </div>
         <div id="s4Msg" class="msg"></div>
@@ -82,5 +87,6 @@
   </main>
 
   <script src="app.js"></script>
+  <script src="import.js"></script>
 </body>
 </html>

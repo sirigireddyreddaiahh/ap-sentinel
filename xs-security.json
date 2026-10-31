@@ -1,5 +1,43 @@
 {
-  "scopes": [],
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.APClerk",
+      "description": "APClerk"
+    },
+    {
+      "name": "$XSAPPNAME.APController",
+      "description": "APController"
+    },
+    {
+      "name": "$XSAPPNAME.Auditor",
+      "description": "Auditor"
+    }
+  ],
   "attributes": [],
-  "role-templates": []
+  "role-templates": [
+    {
+      "name": "APClerk",
+      "description": "generated",
+      "scope-references": [
+        "$XSAPPNAME.APClerk"
+      ],
+      "attribute-references": []
+    },
+    {
+      "name": "APController",
+      "description": "generated",
+      "scope-references": [
+        "$XSAPPNAME.APController"
+      ],
+      "attribute-references": []
+    },
+    {
+      "name": "Auditor",
+      "description": "generated",
+      "scope-references": [
+        "$XSAPPNAME.Auditor"
+      ],
+      "attribute-references": []
+    }
+  ]
 }

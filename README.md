@@ -144,3 +144,130 @@ These are decisions I made where the spec left the answer open:
 - The local login (`reviewer` / `reviewer`) applies only to `cds watch` and `cds serve` on your computer. It is not used in production.
 - The IRP key and any HANA credentials stay out of GitHub. `.gitignore` excludes them.
 # ap-sentinel
+
+## Round 2 update
+
+The original starter-build guide above is preserved. This section adds the round 2 capabilities and replaces the round 1 limitations where noted.
+
+### What changed
+
+| Round 1 limitation | Round 2 |
+|---|---|
+| QR codes were not read from PDFs, so AP-01 showed SKIPPED. | QR codes are read from the first two pages. An IRN JWS signature is verified offline, and AP-01 checks it against the invoice. |
+| Scanned PDFs were not read. | Pages without a text layer are read by English OCR; the screen identifies fields sourced from OCR. |
+| S/4HANA data was a mock. | Import an S/4HANA export as CSV using `data/s4-import-template.csv`. The mock remains available as the sample extract. |
+| Every signed-in user could use every screen. | The service defines APClerk, APController and Auditor roles; see the role table below. |
+| The UI was plain HTML only. | The review queue is a Fiori Elements app at `/alerts/index.html`; upload and import remain HTML. |
+
+### Roles
+
+| Role | Permissions |
+|---|---|
+| APClerk | Import and read extracts, upload PDFs, check invoices, and post to the ledger. |
+| APController | Check invoices, read everything, and decide review items (Clear, Confirm, Escalate). |
+| Auditor | Read checks, results, alerts, posted invoices and the audit log; verify the audit chain. |
+
+Other calls are expected to receive 403. On BTP, create role collections from the APClerk, APController and Auditor role templates and assign them to users.
+
+### Round 2 local run and smoke tests
+
+```bash
+npm install
+npm test
+npm run watch            # http://localhost:4004
+```
+
+With the server running:
+
+```bash
+python3 test/api_smoke.py
+python3 test/rbac_import_smoke.py
+```
+
+Local development users are `reviewer` (all roles), `clerk`, `controller` and `auditor`; each user's password is the username.
+
+Optional environment variables:
+
+- `IRP_PUBLIC_KEY_PEM`: IRP public key in PEM format. Without it, AP-01 shows SKIPPED, not PASS. The key can also be placed at `config/irp-public-key.pem`.
+- `TESSDATA_PATH`: directory containing `eng.traineddata`. Without it, tesseract.js downloads the model on first use, requiring internet access.
+
+### Reading invoices and review queue
+
+- **PDF upload:** the text layer is read first. The first two pages are rendered and checked for a QR code. Pages without text are processed by OCR. Extracted fields remain editable for review before checking.
+- **S/4HANA extract:** import the CSV and press Check all. Splits and look-alikes are checked across the batch.
+- Receipts use Y or N (GR for goods, SES for services). Dates accept YYYY-MM-DD or DD/MM/YYYY.
+- `/alerts/index.html` is a Fiori Elements List Report and Object Page generated from `srv/annotations.cds`. Its Decide action is bound to each alert. UI5 is loaded from ui5.sap.com, so the browser needs internet access.
+
+### Round 2 deployment notes
+
+- Keep the round 2 `package-lock.json` aligned with `package.json`; for reproducible builds, run `npm install` in Business Application Studio and commit the lock file.
+- Set the IRP key on the service with `cf set-env ap-sentinel-srv IRP_PUBLIC_KEY_PEM "<PEM text>"`, then restart the app.
+- OCR needs `eng.traineddata`. Include it in the app and set `TESSDATA_PATH`, or allow outbound access for the default model download.
+
+### Round 2 known limits
+
+1. QR reading was tested with a test signing key, not a real IRP-signed invoice.
+2. A live S/4HANA OData connection is not built; CSV file import is the current route.
+3. OCR was tested on clean rendered text; real scans still need testing.
+4. The screens do not hide buttons by role. The server is expected to enforce permissions, so unauthorized actions should return 403.
+5. The Fiori review queue has not been rendered in a browser. Fiori check-history and upload apps are not built.
+6. Field patterns in `srv/lib/extract.js` match sample invoices; real layouts will need adjustments.
+7. Hidden text in PDFs is not checked; AP-12 reads only extracted text.
+8. The audit chain is stored in the same database; external anchoring is not built.
+9. Nothing is written back to S/4HANA; the posted ledger is internal.
+
+### Round 2 files
+
+New: `srv/annotations.cds`, `srv/lib/pdfimage.js`, `srv/lib/ocr.js`, `srv/lib/csv.js`, `app/import.js`, `app/alerts/` (`index.html`, `Component.js`, `manifest.json`), `test/qr.test.js`, `test/csv.test.js`, `test/rbac_import_smoke.py`, `samples/s4-export-sample.csv`, and `data/s4-import-template.csv`.
+
+Changed: `package.json`, `package-lock.json`, `mta.yaml`, `xs-security.json`, `db/schema.cds`, `srv/fraud-service.cds`, `srv/fraud-service.js`, `app/index.html`, and `README.md`.
+
+## Round 3 update
+
+This section records the round 3 additions; where it differs from the round 2 notes above, this is the current status.
+
+### What's in place
+
+- **PDF reading:** the text layer is read first, followed by QR decoding (with offline IRN signature verification) and OCR for scanned pages. In the 100-PDF batch described below, extraction matched the ground truth for eight fields on all 100 invoices.
+- **AP-08 tax check:** VAT-style invoices are held as "not GST". Indian B2B invoices need CGST and SGST, or IGST.
+- **S/4HANA import:** import a CSV using `data/s4-import-template.csv`; the sample extract is for demos.
+- **Role enforcement:** APClerk can prepare and post, APController can check and decide holds, and Auditor is read-only. The server enforces roles.
+- **Fiori apps:** the review queue is at `/alerts/index.html`; check history, including all 14 rule results for each check, is at `/checks/index.html`.
+
+### Batch-checking PDFs
+
+Run the batch script with a folder of PDFs and a CSV containing expected values:
+
+```bash
+npm run batch -- "path/to/pdfs" "path/to/batch_1.csv" --out report.json
+```
+
+The script reports read errors, statuses, rule hits and field accuracy. Keep test PDFs out of the repository if they contain real data.
+
+### Round 3 batch results
+
+The 100-PDF batch had no read errors, and extraction matched the ground truth for invoice number, invoice date, supplier name, supplier GSTIN, total, taxable value, VAT and buyer tax ID on all 100 invoices. The live upload/check flow succeeded for all 100. All were REJECT because the seller GSTIN check character was invalid; AP-04, AP-07 and AP-08 also held all invoices. These invoices used VAT rather than Indian GST, had no buyer GSTIN, and had no PO reference. This batch had no QR codes and needed no OCR, so it does not validate AP-01 against real IRN codes or OCR on scans. See `docs/batch-test-report.md` for scope and rule details.
+
+### Round 3 local run and deployment
+
+```bash
+npm install
+npm test
+npm run watch            # http://localhost:4004
+```
+
+With the server running, run `python3 test/api_smoke.py` and `python3 test/rbac_import_smoke.py` for the end-to-end and role/import checks. Local development users are `reviewer` (all roles), `clerk`, `controller` and `auditor`; each user's password is the username.
+
+For reproducible builds, run `npm install` in Business Application Studio and commit the resulting `package-lock.json`; the lock file described by the round 3 archive predates round 2. Set `IRP_PUBLIC_KEY_PEM` on the service and create role collections from the APClerk, APController and Auditor role templates.
+
+### Round 3 known limits
+
+1. The batch used no QR codes, so AP-01 was not exercised on real IRP invoices. QR tests use a test signing key.
+2. Line items are not extracted; the rules do not use them except for the description used by AP-09.
+3. A live S/4HANA OData connection is not built; CSV import is the current route.
+4. The screens do not hide buttons by role; the server enforces permissions.
+5. The Fiori apps have not been rendered in a browser.
+6. Extraction patterns are tuned to the tested layouts; new supplier layouts may need new patterns.
+7. Hidden text in PDFs is not checked; AP-12 reads extracted text.
+8. The audit chain is stored in the same database; external anchoring is not built.
+9. Nothing is written back to S/4HANA; the posted ledger is internal.

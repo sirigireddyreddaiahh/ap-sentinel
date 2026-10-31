@@ -145,10 +145,11 @@ function ap07(inv, ctx) {
 // ---------- AP-08 Arithmetic and GST tax ----------
 function ap08(inv, ctx) {
   const taxable = U.num(inv.taxable), cgst = U.num(inv.cgst), sgst = U.num(inv.sgst);
-  const igst = U.num(inv.igst), cess = U.num(inv.cess), total = U.num(inv.total);
+  const igst = U.num(inv.igst), cess = U.num(inv.cess), vat = U.num(inv.vat), total = U.num(inv.total);
   const issues = [];
-  const computed = taxable + cgst + sgst + igst + cess;
+  const computed = taxable + cgst + sgst + igst + cess + vat;
   if (Math.abs(computed - total) > TOL_TOTAL) issues.push(`taxable plus tax is ${computed.toFixed(2)} but total is ${total.toFixed(2)}`);
+  if (vat > 0) issues.push(`tax is shown as VAT (${vat.toFixed(2)}), not GST. Indian B2B invoices need CGST and SGST, or IGST`);
   const intra = U.stateOf(inv.supplierGstin) === U.stateOf(inv.buyerGstin);
   if (intra) {
     if (igst > 0) issues.push('intrastate invoice shows IGST');

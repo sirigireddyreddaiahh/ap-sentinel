@@ -2,7 +2,7 @@ namespace ap;
 
 using { cuid, managed } from '@sap/cds/common';
 
-// One row per invoice check run (upload or S/4HANA fetch).
+// One row per invoice check run (upload or S/4HANA extract).
 entity Checks : cuid, managed {
   source        : String(10);
   fileName      : String(255);
@@ -12,23 +12,33 @@ entity Checks : cuid, managed {
   invoiceDate   : Date;
   total         : Decimal(15,2);
   status        : String(10);   // REJECT | HOLD | FLAG | PASS
-  resultJson    : LargeString;  // full rule-by-rule result
+  resultJson    : LargeString;
+  results       : Composition of many CheckResults on results.check = $self;
 }
 
-// One row per REJECT, HOLD or FLAG raised by a check. This is the review queue.
+// One row per rule per check: all 14 rules, including PASS and SKIPPED.
+entity CheckResults : cuid {
+  check   : Association to Checks;
+  ruleId  : String(10);
+  title   : String(120);
+  tier    : String(10);
+  text    : String(1000);
+}
+
+// One row per REJECT, HOLD or FLAG. This is the review queue.
 entity Alerts : cuid, managed {
   check     : Association to Checks;
   ruleId    : String(10);
   title     : String(120);
   tier      : String(10);
   text      : String(1000);
-  decision  : String(12);       // OPEN | CLEAR | CONFIRM | ESCALATE
+  decision  : String(12);   // OPEN | CLEAR | CONFIRM | ESCALATE
   comment   : String(1000);
   decidedBy : String(100);
   decidedAt : String(30);
 }
 
-// Ledger of invoices that passed (or were posted with a payment block).
+// Ledger of invoices that passed, or were posted with a payment block.
 entity Posted : cuid {
   invoiceNo     : String(60);
   supplierGstin : String(15);
@@ -41,7 +51,7 @@ entity Posted : cuid {
   postedAt      : String(30);
 }
 
-// Hash-chained audit trail. Strings are used for ts and hashes so the chain can be re-verified exactly.
+// Hash-chained audit trail. ts and hashes are strings so the chain can be re-verified exactly.
 entity AuditLog {
   key idx    : Integer;
   ts         : String(30);

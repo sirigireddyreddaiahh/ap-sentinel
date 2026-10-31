@@ -6,8 +6,10 @@
   "scripts": {
     "start": "cds-serve",
     "watch": "cds watch",
-    "test": "node --test test/rules.test.js",
-    "build": "cds build --production"
+    "build": "cds build --production",
+    "test": "node --test test/rules.test.js test/csv.test.js test/qr.test.js",
+    "smoke": "python3 test/api_smoke.py",
+    "batch": "node scripts/batch-check.js"
   },
   "keywords": [],
   "author": "",
@@ -15,9 +17,12 @@
   "dependencies": {
     "@cap-js/hana": "^3.1.2",
     "@cap-js/sqlite": "^3.1.2",
+    "@napi-rs/canvas": "^1.1.0",
     "@sap/cds": "^10.2.2",
+    "@sap/xssec": "^4",
+    "jsqr": "^1.4.0",
     "pdfjs-dist": "^6.4.299",
-    "@sap/xssec": "^4"
+    "tesseract.js": "^7.0.0"
   },
   "private": true,
   "cds": {
@@ -38,7 +43,30 @@
           "kind": "mocked",
           "users": {
             "reviewer": {
-              "password": "reviewer"
+              "password": "reviewer",
+              "roles": [
+                "APClerk",
+                "APController",
+                "Auditor"
+              ]
+            },
+            "clerk": {
+              "password": "clerk",
+              "roles": [
+                "APClerk"
+              ]
+            },
+            "controller": {
+              "password": "controller",
+              "roles": [
+                "APController"
+              ]
+            },
+            "auditor": {
+              "password": "auditor",
+              "roles": [
+                "Auditor"
+              ]
             }
           }
         }
@@ -54,6 +82,8 @@
     "node": ">=20"
   },
   "devDependencies": {
-    "@sap/cds-dk": "^10.2.0"
+    "@sap/cds-dk": "^10.2.0",
+    "pdf-lib": "^1.17.1",
+    "qrcode": "^1.5.4"
   }
 }

@@ -1,0 +1,2 @@
+Id,SupplierId,SupplierName,SupplierGSTIN,BuyerGSTIN,InvoiceNo,InvoiceDate,PONumber,Category,ReceiptDone,Description,HSN,Taxable,CGST,SGST,IGST,Cess,Total,IFSC,AccountNo
+IMP-001,V1001,Sri Sai Facility Services,37AAFCS2201L1ZG,37AABCB1001K1Z7,SSFS/2026/0412,2026-10-20,4500001001,services,Y,Facility housekeeping services October 2026,9985,50000,4500,4500,0,0,59000,SBIN0001001,123456789001
